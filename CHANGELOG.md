@@ -1,5 +1,22 @@
 # 变更记录
 
+## 0.10.1 — 2026-11-17
+
+- 浮动入口改为真·液态玻璃：半透明玻璃主体（去掉了品牌蓝填充，颜色来自背景折射）、边缘色散描边、水光高光与底部焦散光晕，文字置于磨砂底盘上并带投影，兼顾质感与可读性；`prefers-reduced-transparency` 下自动降级为实体背景。
+- 修复"点了没反应"：宿主拒绝 `selectPanel` 时不再只闪一条提示，而是在浮层顶部插入明确说明，并把 `layout` 可用方法列表与错误写入 `client-diag.log`（`open-panel-blocked`）。
+- 槽位延迟重试：`slots` 服务晚于插件应用就绪时每 250ms 重试、最多 2.5 秒，减少宿主热重载时误弹出浮窗。
+- `ui.floatingEntry=off` 依然生效；浮层新增"复制队列总览命令 / 复制今日草稿命令"等可用动作。
+- README（中/英）、架构文档与 `dsh-retro/README.md` 校订：版本声明更新为 0.10.1 / DSH `0.2.2-rc.3`、补充 `client-diag.log` 诊断说明、液态玻璃入口行为与测试数量（127 条断言 + 12 项客户端冒烟），并添加「powered by dsh」徽章。
+
+## 0.10.0 — 2026-11-17
+
+- 浮动入口重做：液态玻璃质感（backdrop-filter 模糊 + 顶部高光 + 内阴影），带待办角标，并遵循 `prefers-reduced-motion` / `prefers-reduced-transparency`。
+- 浮动入口绑定真实功能：优先 `layout.selectPanel("dsh-retro")` 切到面板；拿不到 layout 服务时展开快捷浮层（待办摘要、尝试打开面板、复制 `/retro queue`、复制 `/retro draft today`、本次隐藏），不再出现"点击无反应"。
+- `layout` 改为可选注入 + `ctx.get` 双路径探测；浮动入口统一延迟 600ms 挂载，先读快照再决定是否出现。
+- 新增配置 `ui.floatingEntry`（`auto` / `off`）；快照暴露 `floatingEntry` 供客户端判断。
+- 客户端诊断新增 `apply-state`（panel/icon/slots/layout/fab 状态），便于排查座位注册问题。
+- 客户端冒烟新增 3 项：浮层降级、layout 直开、配置关闭浮窗。
+
 ## 0.9.0 — 2026-11-05
 
 - 多工作区（FR-12）：配置新增 `workspaces` 与 `activeWorkspace`，`loadConfig` 合并后按激活项覆盖 `vaultPath`/`blogPath`，未配置时行为与单库完全一致。

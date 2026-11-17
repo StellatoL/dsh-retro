@@ -104,7 +104,17 @@ window.__ModuleLoader__.load({
       "toast.done": "操作已完成",
       "toast.saved": "已保存到暂存区",
       "toast.adopted": "已采纳",
-      "toast.noLayout": "当前宿主不支持切换面板，请使用左侧栏「复盘」入口"
+      "toast.noLayout": "当前宿主不支持切换面板，请使用左侧栏「复盘」入口",
+      "fab.title": "复盘",
+      "fab.pendingCards": "待审卡片",
+      "fab.pendingProposals": "待采纳提案",
+      "fab.copyQueue": "复制队列总览命令",
+      "fab.draftToday": "复制今日草稿命令",
+      "fab.tryOpen": "尝试打开面板",
+      "fab.hide": "本次隐藏浮窗",
+      "fab.noData": "暂无待办",
+      "fab.hint": "写接口未开启时，可用命令在会话中完成确认",
+      "fab.openBlocked": "此宿主不允许从浮窗切换面板：请用左侧栏「复盘」入口，或直接复制下方命令。"
     };
 
     var TEXT_EN = {
@@ -175,7 +185,17 @@ window.__ModuleLoader__.load({
       "toast.done": "Done",
       "toast.saved": "Saved to staging",
       "toast.adopted": "Adopted",
-      "toast.noLayout": "This host cannot switch panels; use the sidebar entry"
+      "toast.noLayout": "This host cannot switch panels; use the sidebar entry",
+      "fab.title": "Retro",
+      "fab.pendingCards": "Cards to review",
+      "fab.pendingProposals": "Proposals pending",
+      "fab.copyQueue": "Copy queue command",
+      "fab.draftToday": "Copy draft-today command",
+      "fab.tryOpen": "Try opening the panel",
+      "fab.hide": "Hide for now",
+      "fab.noData": "Nothing pending",
+      "fab.hint": "With the write API off, confirm through commands in a session",
+      "fab.openBlocked": "This host does not allow switching panels from the floating entry; use the sidebar row or copy a command below."
     };
 
     /** 当前界面语言：浏览器语言以 zh 开头时用中文，其余用英文；缺失时回落中文。 */
@@ -238,7 +258,27 @@ window.__ModuleLoader__.load({
       ".dsh-retro-md hr{border:none;border-top:1px solid var(--dsw-alias-border-l1,#ffffff22);margin:10px 0}",
       ".dsh-retro-field{display:block;margin:8px 0}",
       ".dsh-retro-field textarea{width:100%;box-sizing:border-box;min-height:56px;background:var(--dsw-alias-bg-soft,#1a1f29);color:inherit;border:1px solid var(--dsw-alias-border-l1,#ffffff22);border-radius:6px;padding:6px 8px;font:inherit;resize:vertical}",
-      ".dsh-retro-fab{position:fixed;right:16px;bottom:16px;z-index:2147483000;background:var(--dsw-alias-accent,#3b82f6);color:#fff;border:none;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);font-family:var(--dsw-font-family,system-ui)}",
+      // 浮动入口：液态玻璃（半透明玻璃主体 + 边缘色散 + 水光高光 + 文字磨砂底盘）。
+      // 不用品牌蓝填充，颜色全部来自背景透过玻璃后的自然折射；文字对比度靠磨砂底盘与投影保证。
+      ".dsh-retro-fab{position:fixed;right:20px;bottom:20px;z-index:2147483000;display:inline-flex;align-items:center;padding:0;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.05) 42%,rgba(255,255,255,.02));color:#fff;font:inherit;font-size:13px;font-weight:600;letter-spacing:.2px;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 -1px 1px rgba(0,0,0,.35) inset,0 14px 30px rgba(0,0,0,.32),0 3px 8px rgba(0,0,0,.22);backdrop-filter:blur(18px) saturate(180%) contrast(108%);-webkit-backdrop-filter:blur(18px) saturate(180%) contrast(108%);transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease,filter .18s ease;font-family:var(--dsw-font-family,system-ui);-webkit-tap-highlight-color:transparent}",
+      ".dsh-retro-fab::before{content:\"\";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:conic-gradient(from 200deg,rgba(140,210,255,.7),rgba(170,150,255,.55),rgba(255,170,220,.45),rgba(150,255,235,.5),rgba(140,210,255,.7));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.6;pointer-events:none}",
+      ".dsh-retro-fab::after{content:\"\";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(58% 42% at 26% 8%,rgba(255,255,255,.6),rgba(255,255,255,0) 62%),radial-gradient(42% 34% at 82% 92%,rgba(170,225,255,.3),rgba(170,225,255,0) 72%);mix-blend-mode:screen;opacity:.85}",
+      ".dsh-retro-fab:hover{transform:translateY(-1.5px) scale(1.015);filter:brightness(1.05)}",
+      ".dsh-retro-fab:active{transform:translateY(0) scale(.972)}",
+      ".dsh-retro-fab-plate{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin:5px;padding:5px 13px 5px 10px;border-radius:999px;background:rgba(12,16,24,.26);border:1px solid rgba(255,255,255,.14);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 2px 6px rgba(0,0,0,.18);backdrop-filter:blur(7px) saturate(120%);-webkit-backdrop-filter:blur(7px) saturate(120%);text-shadow:0 1px 2px rgba(0,0,0,.5),0 0 1px rgba(0,0,0,.3)}",
+      ".dsh-retro-fab svg{flex:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}",
+      ".dsh-retro-fab-label{white-space:nowrap}",
+      ".dsh-retro-fab-badge{min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:rgba(10,14,22,.42);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:10px;line-height:15px;text-align:center;box-shadow:0 1px 0 rgba(255,255,255,.2) inset}",
+      ".dsh-retro-fab-glow{position:absolute;left:12%;right:12%;bottom:-9px;height:14px;border-radius:50%;background:radial-gradient(closest-side,rgba(150,215,255,.38),rgba(150,215,255,0));filter:blur(5px);pointer-events:none;z-index:0}",
+      ".dsh-retro-fab-pop{position:fixed;right:18px;bottom:78px;z-index:2147483001;width:264px;padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(18,22,30,.62);color:var(--dsw-alias-label-primary,#e6e8ee);box-shadow:0 18px 48px rgba(0,0,0,.38),0 1px 0 rgba(255,255,255,.16) inset;backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);font-family:var(--dsw-font-family,system-ui);font-size:13px;line-height:1.45}",
+      ".dsh-retro-fab-pop-title{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--dsw-alias-label-secondary,#c9ced8)}",
+      ".dsh-retro-fab-pop-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:9px;cursor:pointer;border:1px solid transparent;background:none;color:inherit;font:inherit;width:100%;text-align:left}",
+      ".dsh-retro-fab-pop-row:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}",
+      ".dsh-retro-fab-pop-num{font-variant-numeric:tabular-nums;font-weight:600}",
+      ".dsh-retro-fab-pop-hint{margin:8px 0 0;font-size:11px;color:var(--dsw-alias-label-tertiary,#8a8f98)}",
+      ".dsh-retro-fab-pop-hint-row{margin:0 0 8px;padding:6px 8px;border-radius:9px;background:rgba(255,176,96,.12);border:1px solid rgba(255,196,128,.3);color:var(--dsw-alias-label-secondary,#e8dcc8);font-size:11px;line-height:1.4}",
+      "@media (prefers-reduced-motion: reduce){.dsh-retro-fab{transition:none}}",
+      "@media (prefers-reduced-transparency: reduce){.dsh-retro-fab{background:rgba(38,44,56,.96);backdrop-filter:none;-webkit-backdrop-filter:none}.dsh-retro-fab-plate{background:rgba(20,24,32,.9);backdrop-filter:none;-webkit-backdrop-filter:none}.dsh-retro-fab-pop{background:var(--dsw-alias-bg-elevated,#1a1f29);backdrop-filter:none;-webkit-backdrop-filter:none}}",
       ".dsh-retro-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483002;background:var(--dsw-alias-bg-soft,#1a1f29);color:var(--dsw-alias-label-primary,#e6e8ee);border:1px solid var(--dsw-alias-border-l1,#ffffff22);border-radius:8px;padding:8px 14px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none;font-family:var(--dsw-font-family,system-ui)}",
       ".dsh-retro-toast[data-show='true']{opacity:1}",
       ".dsh-retro-sb-icon{position:relative;display:inline-flex;align-items:center;justify-content:center}",
@@ -1171,40 +1211,250 @@ window.__ModuleLoader__.load({
       }
 
       // 先完成入口注册，再启动数据层：即便取数/事件流出问题，侧边栏入口也不会因此消失。
-      var slots = ctx.get ? ctx.get("slots") : ctx.slots;
+      var slots = readSlots();
       var panelRegistered = false;
       var iconRegistered = false;
       var fab = null;
       var fabTimer = null;
+      var fabPop = null;
+      var fabDisabled = false;
+      var fabBadgeEl = null;
+      var layoutService = null;
+      var onDocumentPointer = null;
       // 自己记录槽位 disposer：即使宿主不回调 inject 的返回值，也能在卸载/重新应用时释放。
       var registrationDisposers = [];
 
+      /** 读取槽位服务（宿主可能尚未就绪）。 */
+      function readSlots() {
+        try { return ctx.get ? ctx.get("slots") : (ctx.slots ?? null); } catch { return null; }
+      }
+
       function entryReady() { return panelRegistered && iconRegistered; }
+
+      // 渐进获取可选依赖 layout：部分宿主只在注入后才暴露 selectPanel。
+      try {
+        ctx.inject?.(["layout"], function (child) {
+          layoutService = child?.layout ?? child ?? null;
+        });
+      } catch { /* layout 为可选依赖 */ }
+
+      function resolveLayout() {
+        if (layoutService && typeof layoutService.selectPanel === "function") return layoutService;
+        var direct = null;
+        try { direct = ctx.get ? ctx.get("layout") : (ctx.layout ?? null); } catch { direct = null; }
+        return direct && typeof direct.selectPanel === "function" ? direct : null;
+      }
+
+      /** 切到本插件的主面板；宿主不支持时返回 false 并记录原因。 */
+      function openPanel() {
+        var layout = resolveLayout();
+        if (!layout) {
+          reportClientError("open-panel-failed", "no layout service");
+          return false;
+        }
+        try {
+          layout.selectPanel(PANEL_ID);
+          return true;
+        } catch (error) {
+          reportClientError(
+            "open-panel-failed",
+            `layout=1 keys=${Object.keys(layout).join(",")} err=${String(error?.message ?? error)}`
+          );
+          return false;
+        }
+      }
+
+      /** 用 DOM API 构建图标（不注入 HTML）。 */
+      function createFabIcon(size) {
+        var ns = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("width", String(size));
+        svg.setAttribute("height", String(size));
+        svg.setAttribute("viewBox", "0 0 16 16");
+        svg.setAttribute("aria-hidden", "true");
+        var frame = document.createElementNS(ns, "path");
+        frame.setAttribute("d", "M3 2.5h10v11H3z");
+        frame.setAttribute("fill", "none");
+        frame.setAttribute("stroke", "currentColor");
+        frame.setAttribute("stroke-width", "1.2");
+        var lines = document.createElementNS(ns, "path");
+        lines.setAttribute("d", "M5.5 6h5M5.5 8.5h5M5.5 11h3");
+        lines.setAttribute("stroke", "currentColor");
+        lines.setAttribute("stroke-width", "1.2");
+        lines.setAttribute("stroke-linecap", "round");
+        svg.appendChild(frame);
+        svg.appendChild(lines);
+        return svg;
+      }
+
+      function refreshFabBadge() {
+        if (!fabBadgeEl) return;
+        var count = badgeStats.drafted + badgeStats.proposals;
+        fabBadgeEl.textContent = count > 99 ? "99+" : String(count);
+        fabBadgeEl.style.display = count > 0 ? "inline-block" : "none";
+      }
+
+      function closeFabPopover() {
+        if (typeof document?.removeEventListener === "function") {
+          document.removeEventListener("pointerdown", onDocumentPointer, true);
+        }
+        if (fabPop) { fabPop.remove(); fabPop = null; }
+      }
+
+      function onDocumentPointer(event) {
+        if (!fabPop) return;
+        var insidePop = typeof fabPop.contains === "function" && fabPop.contains(event.target);
+        var insideFab = fab && typeof fab.contains === "function" && fab.contains(event.target);
+        if (insidePop || insideFab) return;
+        closeFabPopover();
+      }
+
+      /** 快捷浮层：宿主不支持切换面板时，仍能给出待办摘要与可执行命令。 */
+      function openFabPopover() {
+        closeFabPopover();
+        fabPop = document.createElement("div");
+        fabPop.className = "dsh-retro-fab-pop";
+        fabPop.setAttribute("role", "dialog");
+        fabPop.setAttribute("aria-label", t("fab.title"));
+
+        var title = document.createElement("h4");
+        title.className = "dsh-retro-fab-pop-title";
+        var total = badgeStats.drafted + badgeStats.proposals;
+        title.textContent = total > 0
+          ? `${t("fab.pendingCards")} ${badgeStats.drafted} · ${t("fab.pendingProposals")} ${badgeStats.proposals}`
+          : t("fab.noData");
+        fabPop.appendChild(title);
+
+        // 宿主拒绝切换时，在浮层顶部给出明确说明，而不是只闪一条提示。
+        function showOpenBlocked(error, layout) {
+          reportClientError(
+            "open-panel-blocked",
+            `layout=${Boolean(layout)} keys=${layout ? Object.keys(layout).join(",") : ""} err=${String(error?.message ?? error ?? "no layout")}`
+          );
+          if (!fabPop) {
+            toast.show(t("fab.openBlocked"));
+            return;
+          }
+          var existing = fabPop.querySelector?.(".dsh-retro-fab-pop-hint-row");
+          if (existing) return;
+          var hintRow = document.createElement("div");
+          hintRow.className = "dsh-retro-fab-pop-hint-row";
+          hintRow.textContent = t("fab.openBlocked");
+          if (typeof fabPop.insertBefore === "function" && fabPop.firstChild) fabPop.insertBefore(hintRow, fabPop.firstChild);
+          else fabPop.appendChild(hintRow);
+          toast.show(t("toast.noLayout"));
+        }
+
+        var actions = [
+          {
+            label: t("fab.tryOpen"),
+            run: () => {
+              var layout = resolveLayout();
+              if (!layout) { showOpenBlocked(null, null); return; }
+              try {
+                layout.selectPanel(PANEL_ID);
+                closeFabPopover();
+              } catch (error) {
+                showOpenBlocked(error, layout);
+              }
+            }
+          },
+          { label: t("fab.copyQueue"), run: () => copyText("/retro queue", toast) },
+          { label: t("fab.draftToday"), run: () => copyText("/retro draft today", toast) },
+          { label: t("fab.hide"), run: () => { fabDisabled = true; closeFabPopover(); unmountFab(); } }
+        ];
+        for (const action of actions) {
+          var row = document.createElement("button");
+          row.type = "button";
+          row.className = "dsh-retro-fab-pop-row";
+          var text = document.createElement("span");
+          text.textContent = action.label;
+          row.appendChild(text);
+          row.addEventListener("click", (event) => {
+            event.stopPropagation();
+            action.run();
+          });
+          fabPop.appendChild(row);
+        }
+
+        var hint = document.createElement("p");
+        hint.className = "dsh-retro-fab-pop-hint";
+        hint.textContent = t("fab.hint");
+        fabPop.appendChild(hint);
+
+        document.body.appendChild(fabPop);
+        if (typeof document?.addEventListener === "function") {
+          document.addEventListener("pointerdown", onDocumentPointer, true);
+        }
+      }
+
       function mountFab() {
-        if (disposed || fab) return;
+        if (disposed || fab || fabDisabled) return;
         fab = document.createElement("button");
+        fab.type = "button";
         fab.className = "dsh-retro-fab";
-        fab.textContent = t("kind.retro");
-        fab.title = `dsh-retro ${t("kind.retro")}`;
-        fab.addEventListener("click", () => {
-          // 浮动入口只负责把宿主切换到本插件的主面板，不另建 DOM 面板。
-          var layout = ctx.get?.("layout");
-          if (layout?.selectPanel) layout.selectPanel(PANEL_ID);
-          else toast.show(t("toast.noLayout"));
+        fab.title = `${t("fab.title")} · dsh-retro`;
+
+        // 底部光学焦散：按钮下方一层很淡的冷色光晕，营造"浮起"的物理感。
+        var glow = document.createElement("span");
+        glow.className = "dsh-retro-fab-glow";
+        fab.appendChild(glow);
+
+        // 文字磨砂底盘：把复杂的折射/光斑隔开，保证白字始终清晰可读。
+        var plate = document.createElement("span");
+        plate.className = "dsh-retro-fab-plate";
+
+        plate.appendChild(createFabIcon(15));
+
+        var label = document.createElement("span");
+        label.className = "dsh-retro-fab-label";
+        label.textContent = t("fab.title");
+        plate.appendChild(label);
+
+        var badge = document.createElement("span");
+        badge.className = "dsh-retro-fab-badge";
+        badge.textContent = "0";
+        badge.style.display = "none";
+        plate.appendChild(badge);
+        fabBadgeEl = badge;
+
+        fab.appendChild(plate);
+        refreshFabBadge();
+
+        fab.addEventListener("click", function (event) {
+          event.stopPropagation();
+          // 优先把宿主切到本插件的 main 面板；宿主不支持时展开快捷浮层，绝不"点了没反应"。
+          if (openPanel()) {
+            closeFabPopover();
+            return;
+          }
+          if (fabPop) closeFabPopover();
+          else openFabPopover();
         });
         document.body.appendChild(fab);
       }
+
+      /** 配置 ui.floatingEntry=off 时不显示浮动入口。 */
+      function floatingEntryDisabled() {
+        var snapshot = store.getState().snapshot;
+        return snapshot?.floatingEntry === "off";
+      }
+
       function unmountFab() {
-        if (fabTimer !== null) { clearTimeout(fabTimer); fabTimer = null; }
+        if (fabTimer !== null) { clearInterval(fabTimer); fabTimer = null; }
+        closeFabPopover();
         if (fab) { fab.remove(); fab = null; }
+        fabBadgeEl = null;
       }
       function maybeUnmountFab() { if (entryReady()) unmountFab(); }
 
-      if (slots && typeof slots.inject === "function") {
+      /** 向槽位注册主面板与侧边栏行；slots 晚到时会被重试调用。 */
+      function registerSlots(slotsApi) {
+        if (!slotsApi || typeof slotsApi.inject !== "function") return;
         try {
-          slots.inject("main", function () {
+          slotsApi.inject("main", function () {
             try {
-              var disposePanel = slots.register({ name: "main", key: PANEL_ID }, PanelBody);
+              var disposePanel = slotsApi.register({ name: "main", key: PANEL_ID }, PanelBody);
               if (typeof disposePanel === "function") registrationDisposers.push(disposePanel);
               panelRegistered = true;
               maybeUnmountFab();
@@ -1216,9 +1466,9 @@ window.__ModuleLoader__.load({
           });
         } catch { panelRegistered = false; }
         try {
-          slots.inject("sidebar.panellist", function () {
+          slotsApi.inject("sidebar.panellist", function () {
             try {
-              var disposeIcon = slots.register({
+              var disposeIcon = slotsApi.register({
                 name: "sidebar.panellist",
                 id: PANEL_ID,
                 order: 5,
@@ -1236,13 +1486,47 @@ window.__ModuleLoader__.load({
         } catch { iconRegistered = false; }
       }
 
+      registerSlots(slots);
+
       if (!entryReady()) {
-        if (!slots) mountFab();
-        else fabTimer = setTimeout(function () {
-          fabTimer = null;
-          if (!entryReady()) mountFab();
-        }, FAB_DELAY_MS);
+        // 座位可能晚于插件应用出现（宿主热重载/图变化）：每 250ms 重新探测槽位服务，
+        // 最多重试 2.5 秒；仍未就绪才显示浮动入口，避免"偶尔闪出一个浮窗"。
+        var slotAttempts = 0;
+        fabTimer = setInterval(function () {
+          slotAttempts += 1;
+          if (!slots) {
+            var lateSlots = readSlots();
+            if (lateSlots) {
+              slots = lateSlots;
+              registerSlots(lateSlots);
+            }
+          }
+          if (entryReady() || slotAttempts >= 10) {
+            if (fabTimer !== null) { clearInterval(fabTimer); fabTimer = null; }
+            if (!entryReady() && !floatingEntryDisabled()) mountFab();
+          }
+        }, 250);
       }
+
+      // 角标与浮窗开关跟随快照更新；ui.floatingEntry=off 时立即撤下浮窗。
+      store.subscribe(function () {
+        if (floatingEntryDisabled()) {
+          fabDisabled = true;
+          unmountFab();
+          return;
+        }
+        refreshFabBadge();
+      });
+
+      // 记录注册结果，便于下次从 client-diag.log 判断座位是否可用。
+      setTimeout(function () {
+        try {
+          reportClientError(
+            "apply-state",
+            `panel=${panelRegistered} icon=${iconRegistered} slots=${Boolean(slots)} layout=${Boolean(resolveLayout())} fab=${Boolean(fab)}`
+          );
+        } catch { /* 诊断失败忽略 */ }
+      }, 800);
 
       // 入口注册完成后再启动数据层；取数失败只影响内容，不牵连入口。
       try {

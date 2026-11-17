@@ -47,7 +47,12 @@ export const DEFAULTS = {
   // 多工作区：workspaces 为空时沿用上面的单库配置，行为与旧版本完全一致。
   // 每项形如 { id, name, vaultPath, blogPath? }；activeWorkspace 为空表示不启用。
   workspaces: [],
-  activeWorkspace: ""
+  activeWorkspace: "",
+  // 界面选项：floatingEntry 控制侧边栏座位不可用时的浮动入口。
+  // "auto" = 自动显示（默认）；"off" = 完全不显示浮动入口。
+  ui: {
+    floatingEntry: "auto"
+  }
 };
 
 /** 状态与配置目录：优先使用 DSH_RETRO_DIR，否则使用 DSH_HOME 下的 retro。 */
@@ -235,6 +240,7 @@ export function renderConfig(cfg) {
     ["storage.stagingGraceHours", String(cfg.storage?.stagingGraceHours)],
     ["activeWorkspace", cfg.activeWorkspace || "（未启用）"],
     ["workspaces", listWorkspaces(cfg).map((item) => `${item.id}${item.active ? "*" : ""}`).join(", ") || "（未配置）"],
+    ["ui.floatingEntry", cfg.ui?.floatingEntry ?? "auto"],
     ["configDir", retroDir()]
   ];
   return rows.map(([k, v]) => `${k}: ${v}`).join("\n");

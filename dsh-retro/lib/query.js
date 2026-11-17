@@ -270,6 +270,8 @@ export function createQueryService({ store, cfg }) {
         // 多工作区：未配置时为空数组，不影响旧客户端。
         workspaces: listWorkspaces(cfg),
         activeWorkspace: cfg.activeWorkspace || "",
+        // 界面开关：浮动入口 auto/off（客户端据此决定是否创建 FAB）。
+        floatingEntry: cfg.ui?.floatingEntry === "off" ? "off" : "auto",
         insights: buildInsights(store)
       };
       const wantsPage = ["resource", "status", "q", "limit", "cursor", "sort"].some((key) => params[key] !== undefined);

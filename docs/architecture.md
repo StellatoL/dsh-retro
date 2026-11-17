@@ -1,6 +1,6 @@
 # 当前架构
 
-本文描述 `dsh-retro 0.9.0` 的现有实现。安装、配置与命令说明见 [English README](../README.md) 或[中文 README](../README.zh-CN.md)。
+本文描述 `dsh-retro 0.10.1` 的现有实现。安装、配置与命令说明见 [English README](../README.md) 或[中文 README](../README.zh-CN.md)。
 
 ## 入口与部署
 
@@ -95,6 +95,7 @@ LLM 请求使用 `createUserMessage` 构建内容块数组，经 `ctx.llm.stream
 
 - 配置优先级：默认值 < Cordis 行配置 < 运行时 JSON。三个路径环境变量只填空值。
 - 多工作区：`workspaces`（`{ id, name, vaultPath, blogPath? }`）+ `activeWorkspace`；`loadConfig` 在合并后按激活项覆盖 `vaultPath`/`blogPath`，未配置时行为与单库完全一致。管理工作区走 `/retro workspace`，面板切换走 `POST /retro/action`（`workspace.switch`），该动作与其它写动作一样受 `security.enableWriteApi` 约束，且不会修改任何 `security.*` 开关。
+- 浮动入口：`ui.floatingEntry`（`auto` 默认 / `off`）；仅在侧边栏座位不可用时出现。座位服务可能晚于插件就绪，因此入口前会每 250ms 重试探测 `slots`，最多 2.5 秒。点击先尝试 `layout.selectPanel("dsh-retro")`；宿主拒绝时在浮层内插入说明并把 `layout` 方法列表与错误写入 `client-diag.log`（`open-panel-blocked`），同时保留复制命令等可用动作。视觉为半透明液态玻璃（边缘色散 + 水光 + 文字磨砂底盘），`prefers-reduced-transparency` 下退化为实体背景。
 - 状态默认在 `$DSH_HOME/retro`，`DSH_RETRO_DIR` 可单独覆盖它。
 - 技能和全局规则在 `$DSH_HOME/skills/retro-writing/SKILL.md`、`$DSH_HOME/AGENTS.md`；首次技能安装不会替换已有文件。
 - 暂存逻辑将 `_entries/` 和 `_proposals/` 路由到各自配置根目录，其他草稿进入卡片暂存根目录。
@@ -125,3 +126,7 @@ HTTP 路由共四条：`GET /retro/api`（快照）、`GET /retro/detail`（详�
 - 文本重复提示采用关键词或相邻双字符重叠，不是模型语义判断。
 - 面板的素材统计读取最近 500 条，提案列表默认读取 `pending`；审计最多持久化 2000 条。
 - HTML 与 API 是当前状态的视图；本轮客户端验证使用模拟浏览器，完整真实 DSH Web 会话未在本轮启动。
+
+---
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)

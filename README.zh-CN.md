@@ -13,7 +13,7 @@
 
 需要 Node.js 22 或更新版本、用于管理 profile 插件的 pnpm，以及已配置模型的 DSH。DSH 的安装参见[官方仓库说明](https://github.com/deepseek-ai/deepseek-harness)，Web 界面和首次配置参见[官方快速开始](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)。
 
-包中声明了 `engines.dsh`（`^0.2.2-rc.1`）和与之匹配的 `@deepseek-ai/dsh-*` peer 依赖，DSH 会在激活前拒绝不兼容的宿主。当前版本针对 DSH `0.2.2-rc.1` 与 Cordis `4.1.0` 验证了工具契约、会话事件、宿主与客户端加载，以及配置合成。
+包中声明了 `engines.dsh`（`^0.2.2-rc.1`）和与之匹配的 `@deepseek-ai/dsh-*` peer 依赖，DSH 会在激活前拒绝不兼容的宿主。0.10.1 已在 DSH `0.2.2-rc.3`（桌面端）与 `0.2.2-rc.1`、Cordis `4.1.0` 上验证工具契约、会话事件、宿主与客户端加载、面板槽位以及配置合成。
 
 安装到 Web profile：
 
@@ -38,7 +38,8 @@ dsh plugin --profile web add .
 
 ### 从旧版本升级
 
-- 0.4.0 面向 DSH `0.2.2-rc.1`。继续使用 DSH `0.1.x` 时请安装 0.3.0；现在由 `engines.dsh` 与 peer 范围拒绝旧宿主，而不是等到运行时报错。
+- 0.10.x 面向 DSH `0.2.2-rc.x`。仍使用 DSH `0.1.x` 时请安装 0.3.0；现在由 `engines.dsh` 与 peer 范围拒绝旧宿主，而不是等到运行时报错。
+- 自 0.6.0 起状态文件为 `schemaVersion: 2`，首次加载会原地升级并保留 `store.v1.bak.json`；回滚时恢复该备份并装回 0.5.0 即可。
 - 仓库根目录现在是正式分发包。原先指向 `dsh-retro/` 的本地链接仍可使用；新安装统一使用仓库根目录。
 - 若个人 `cordis.patch.yml` 中已有手工插入的 `retro` 行，改用 bundle 安装时移除这条重复插入；有自定义配置时先保存配置。个人路径可通过下文的 `/retro config` 恢复。
 - 手工加载时，插件行的 `name` 必须是裸包名 `dsh-retro`，客户端发现依赖包元数据。
@@ -80,6 +81,7 @@ dsh plugin --profile web add .
 | `llmProvider` / `llmModel` | `deepseek-official` / `deepseek-v4-flash`；须在 DSH 中可用 |
 | `distillMaxChars` / `chunkChars` | `30000` / `12000`；长会话分段参数，必须为正整数 |
 | `blogAutoPush` | `false`；只有显式开启或传入 `--push` 才推送博客仓库 |
+| `ui.floatingEntry` | `auto`；侧边栏座位不可用时显示液态玻璃浮动入口，设 `off` 则完全不显示 |
 
 `/retro config <key>` 查看单项，`/retro config <key> <value>` 修改单项。目录列表使用逗号分隔，布尔值使用 `true` 或 `false`；模板映射可直接编辑运行时 JSON 配置文件，重新加载插件后生效。
 
@@ -119,9 +121,11 @@ dsh plugin --profile web add .
 
 ## Web 面板与报告
 
-Web 左侧栏显示“复盘”图标行，右侧带待办角标（待审卡片 + 待采纳提案）。点击即在主区域打开工作台：卡片 / 提案 / 素材 / 周报 / 博客 / 经验库 六个视图；界面文案随浏览器语言自动切换中/英文。卡片支持状态筛选与关键字搜索（服务端过滤 + 游标分页），选中后右侧显示详情——Markdown 正文以 React 节点渲染（无 HTML 注入），底部提供“复制落库/丢弃命令”“在 Obsidian 打开”。提案详情展示将追加的行、目标文件末尾上下文与相似提案提示，可勾选批量采纳；博客详情展示发布前预检（draft 标记、缺失本地图片）。`security.enableWriteApi` 开启后，详情栏还会出现“保存修改到暂存区”（按二级标题局部写回，保留手写章节）与“确认落库/丢弃”按钮。`Ctrl/Cmd+K` 打开命令面板，可切换视图或跳转条目；列表支持 j/k、方向键、Enter、Esc。宿主未提供侧边栏座位或注册失败时，改由右下角浮动“复盘”按钮把宿主切换到本插件面板；入口一旦可用，浮动按钮自动移除。
+Web 左侧栏显示“复盘”图标行，右侧带待办角标（待审卡片 + 待采纳提案）。点击即在主区域打开工作台：卡片 / 提案 / 素材 / 周报 / 博客 / 经验库 六个视图；界面文案随浏览器语言自动切换中/英文。卡片支持状态筛选与关键字搜索（服务端过滤 + 游标分页），选中后右侧显示详情——Markdown 正文以 React 节点渲染（无 HTML 注入），底部提供“复制落库/丢弃命令”“在 Obsidian 打开”。提案详情展示将追加的行、目标文件末尾上下文与相似提案提示，可勾选批量采纳；博客详情展示发布前预检（draft 标记、缺失本地图片）。`security.enableWriteApi` 开启后，详情栏还会出现“保存修改到暂存区”（按二级标题局部写回，保留手写章节）与“确认落库/丢弃”按钮。`Ctrl/Cmd+K` 打开命令面板，可切换视图或跳转条目；列表支持 j/k、方向键、Enter、Esc。宿主未提供侧边栏座位或注册失败时，右下角会出现**半透明液态玻璃**质感的浮动「复盘」入口（边缘色散 + 水光高光 + 文字磨砂底盘，带待办角标）：点击优先把宿主切到本插件面板；若宿主拒绝切换，浮层顶部会直接说明原因，并提供「复制队列总览命令 / 复制今日草稿命令 / 本次隐藏」等动作。侧边栏入口一旦可用，浮动入口自动移除；也可用 `/retro config ui.floatingEntry off` 永久关闭。
 
 数据变更优先通过 `GET /retro/events` 事件流推送；15 秒收不到首帧即自动降级为版本号轮询（可见时 15 秒、后台 60 秒），并只拉取变化部分。
+
+面板或浮动入口异常时，客户端会把 `apply`、`apply-state`、`panel-render`、`open-panel-blocked` 面包屑写入 `$DSH_HOME/retro/client-diag.log`（走 `POST /retro/client-error`，不触碰业务数据）。这些记录会写明哪个槽位座位注册成功、`layout` 服务是否可达、首帧拿到了多少行，便于定位"空面板"问题。
 
 写操作（确认落库、丢弃）默认**不出现**：需要先在会话中运行 `/retro config security.enableWriteApi true`，此时详情栏才会出现按钮，并通过 `POST /retro/action` 复用与命令完全相同的实现与审计；未开启时界面只提供“复制命令”，保持既有工作流。
 
@@ -143,6 +147,7 @@ $DSH_HOME/                              # 未设置时为 ~/.dsh
 │   ├── config.json                    # 个人运行时配置
 │   ├── store.json                     # 状态与最近 2000 条审计
 │   ├── retro-report.html              # 按命令生成
+│   ├── client-diag.log                # 排查空面板时的客户端面包屑
 │   └── apply-error.log                # 初始化失败时生成
 ├── skills/retro-writing/SKILL.md       # 首次安装；后续采纳追加规则
 └── AGENTS.md                          # 采纳 agents 提案时写入
@@ -175,7 +180,7 @@ npm test
 npm run test:package
 ```
 
-静态检查验证包清单、导出、技能元数据和源码语法；测试包含官方 DSH 工具契约、文件边界、流程与客户端冒烟；打包检查会实际生成并解包 tarball，验证按包名加载。测试使用临时状态、知识库和博客目录，替换模型、Git 和浏览器启动。
+静态检查验证包清单、导出、技能元数据和源码语法；测试为 19 个测试文件共 127 条断言，外加两个冒烟：宿主上下文冒烟（命令、工具、监听器、路由）与 12 项客户端冒烟（XSS 安全渲染、剪贴板降级、座位延迟注册、卸载清理、批量采纳、命令面板、英文文案、工作区切换、重复 apply、浮动入口降级）。打包检查会实际生成并解包 tarball，验证按包名加载。测试使用临时状态、知识库和博客目录，替换模型、Git 和浏览器启动。
 
 - [当前架构](docs/architecture.md)
 - [变更记录](CHANGELOG.md)
@@ -184,3 +189,7 @@ npm run test:package
 ## 许可
 
 [MIT](LICENSE)
+
+---
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
