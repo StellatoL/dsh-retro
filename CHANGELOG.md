@@ -1,5 +1,14 @@
 # 变更记录
 
+## 0.10.0 — 2026-11-17
+
+- 浮动入口重做：液态玻璃质感（backdrop-filter 模糊 + 顶部高光 + 内阴影），带待办角标，并遵循 `prefers-reduced-motion` / `prefers-reduced-transparency`。
+- 浮动入口绑定真实功能：优先 `layout.selectPanel("dsh-retro")` 切到面板；拿不到 layout 服务时展开快捷浮层（待办摘要、尝试打开面板、复制 `/retro queue`、复制 `/retro draft today`、本次隐藏），不再出现"点击无反应"。
+- `layout` 改为可选注入 + `ctx.get` 双路径探测；浮动入口统一延迟 600ms 挂载，先读快照再决定是否出现。
+- 新增配置 `ui.floatingEntry`（`auto` / `off`）；快照暴露 `floatingEntry` 供客户端判断。
+- 客户端诊断新增 `apply-state`（panel/icon/slots/layout/fab 状态），便于排查座位注册问题。
+- 客户端冒烟新增 3 项：浮层降级、layout 直开、配置关闭浮窗。
+
 ## 0.9.0 — 2026-11-05
 
 - 多工作区（FR-12）：配置新增 `workspaces` 与 `activeWorkspace`，`loadConfig` 合并后按激活项覆盖 `vaultPath`/`blogPath`，未配置时行为与单库完全一致。

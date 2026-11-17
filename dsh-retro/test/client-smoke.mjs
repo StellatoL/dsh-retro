@@ -11,12 +11,20 @@ function makeElement(tag) {
     dataset: {},
     style: {},
     textContent: "",
+    attrs: {},
     children: [],
     listeners: {},
+    type: "",
     addEventListener(type, fn) { (el.listeners[type] ||= []).push(fn); },
     remove() { el.removed = true; },
     appendChild(child) { el.children.push(child); return child; },
-    getAttribute() { return null; },
+    setAttribute(name, value) { el.attrs[name] = value; },
+    getAttribute(name) { return el.attrs[name] ?? null; },
+    querySelector(selector) {
+      const wanted = selector.replace(/^\./, "");
+      return el.children.find((child) => child.className === wanted) ?? null;
+    },
+    contains() { return false; },
     select() {},
     focus() {}
   };
@@ -41,6 +49,11 @@ globalThis.document = {
     created.push(el);
     return el;
   },
+  createElementNS(_ns, tag) {
+    const el = makeElement(tag);
+    created.push(el);
+    return el;
+  },
   head: makeElement("head"),
   body: makeElement("body"),
   execCommand() { return true; }
@@ -51,6 +64,7 @@ let writeApiEnabled = false;
 let postedBody = null;
 let workspacesList = [];
 let activeWorkspace = "";
+let floatingEntryMode = "auto";
 globalThis.fetch = async (url, options) => {
   fetched.push({ url: String(url), method: options?.method ?? "GET" });
   if (String(url) === "/retro/action") {
@@ -101,6 +115,7 @@ globalThis.fetch = async (url, options) => {
       writeApiEnabled,
       workspaces: workspacesList,
       activeWorkspace,
+      floatingEntry: floatingEntryMode,
       insights: {
         funnel: { captured: 3, cards: 2, reviewed: 1, approved: 1, adoptionRate: 1 },
         trends: [{ period: "2026-W45", cardsCreated: 2, cardsApproved: 1, proposalsAdopted: 0 }],
@@ -337,14 +352,48 @@ test("左侧栏注册 main 与 sidebar.panellist，零 innerHTML 渲染卡片与
   ctx._dispose();
 });
 
-test("宿主无 slots 时立即创建浮动入口，并能提示切换面板", async (t) => {
+test("宿主无 slots 时创建浮动入口，点击展开快捷浮层", async (t) => {
   created.length = 0;
+  floatingEntryMode = "auto";
+  t.after(() => { floatingEntryMode = "auto"; });
   const ctx = startClient(t, {});
+  await wait(700);
   const fab = created.find((el) => el.className === "dsh-retro-fab");
   assert.ok(fab, "无 slots 时应创建浮动按钮");
-  fab.listeners.click[0]();
-  const toast = created.find((el) => el.className === "dsh-retro-toast");
-  assert.ok(toast && toast.textContent.includes("左侧栏"), "缺少 layout 时应提示使用左侧栏入口");
+  fab.listeners.click[0]({ stopPropagation() {} });
+  await wait(10);
+  const pop = created.find((el) => el.className === "dsh-retro-fab-pop");
+  assert.ok(pop, "没有 layout 服务时点击应展开快捷浮层，而不是毫无反应");
+  const labels = pop.children
+    .filter((child) => child.className === "dsh-retro-fab-pop-row")
+    .map((row) => row.children.map((child) => child.textContent).join(""));
+  assert.ok(labels.some((text) => text.includes("复制队列总览命令")), `浮层应提供可执行动作：${labels.join("|")}`);
+  assert.ok(labels.some((text) => text.includes("尝试打开面板")));
+  ctx._dispose();
+});
+
+test("有 layout 服务时浮动入口直接切换到复盘面板", async (t) => {
+  created.length = 0;
+  floatingEntryMode = "auto";
+  t.after(() => { floatingEntryMode = "auto"; });
+  const calls = [];
+  const ctx = startClient(t, { layout: { selectPanel: (id) => calls.push(id) } });
+  await wait(700);
+  const fab = created.find((el) => el.className === "dsh-retro-fab");
+  assert.ok(fab, "应创建浮动按钮");
+  fab.listeners.click[0]({ stopPropagation() {} });
+  assert.deepEqual(calls, ["dsh-retro"], "点击应把宿主切到复盘面板");
+  assert.ok(!created.some((el) => el.className === "dsh-retro-fab-pop"), "能打开面板时不应弹浮层");
+  ctx._dispose();
+});
+
+test("ui.floatingEntry=off 时不创建浮动入口", async (t) => {
+  created.length = 0;
+  floatingEntryMode = "off";
+  t.after(() => { floatingEntryMode = "auto"; });
+  const ctx = startClient(t, {});
+  await wait(900);
+  assert.ok(!created.some((el) => el.className === "dsh-retro-fab"), "off 时不应出现浮窗");
   ctx._dispose();
 });
 
