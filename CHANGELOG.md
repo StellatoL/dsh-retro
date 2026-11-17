@@ -1,5 +1,12 @@
 # 变更记录
 
+## 0.10.1 — 2026-11-17
+
+- 浮动入口改为真·液态玻璃：半透明玻璃主体（去掉了品牌蓝填充，颜色来自背景折射）、边缘色散描边、水光高光与底部焦散光晕，文字置于磨砂底盘上并带投影，兼顾质感与可读性；`prefers-reduced-transparency` 下自动降级为实体背景。
+- 修复"点了没反应"：宿主拒绝 `selectPanel` 时不再只闪一条提示，而是在浮层顶部插入明确说明，并把 `layout` 可用方法列表与错误写入 `client-diag.log`（`open-panel-blocked`）。
+- 槽位延迟重试：`slots` 服务晚于插件应用就绪时每 250ms 重试、最多 2.5 秒，减少宿主热重载时误弹出浮窗。
+- `ui.floatingEntry=off` 依然生效；浮层新增"复制队列总览命令 / 复制今日草稿命令"等可用动作。
+
 ## 0.10.0 — 2026-11-17
 
 - 浮动入口重做：液态玻璃质感（backdrop-filter 模糊 + 顶部高光 + 内阴影），带待办角标，并遵循 `prefers-reduced-motion` / `prefers-reduced-transparency`。

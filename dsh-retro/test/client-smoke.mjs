@@ -60,6 +60,7 @@ globalThis.document = {
 };
 
 let fetched = [];
+let reported = [];
 let writeApiEnabled = false;
 let postedBody = null;
 let workspacesList = [];
@@ -67,6 +68,10 @@ let activeWorkspace = "";
 let floatingEntryMode = "auto";
 globalThis.fetch = async (url, options) => {
   fetched.push({ url: String(url), method: options?.method ?? "GET" });
+  if (String(url) === "/retro/client-error") {
+    reported.push(JSON.parse(options?.body ?? "{}"));
+    return { ok: true, status: 200, json: async () => ({ ok: true }) };
+  }
   if (String(url) === "/retro/action") {
     postedBody = JSON.parse(options?.body ?? "{}");
     return {
@@ -352,14 +357,14 @@ test("左侧栏注册 main 与 sidebar.panellist，零 innerHTML 渲染卡片与
   ctx._dispose();
 });
 
-test("宿主无 slots 时创建浮动入口，点击展开快捷浮层", async (t) => {
+test("宿主无 slots 时重试后创建浮动入口，点击展开快捷浮层", async (t) => {
   created.length = 0;
   floatingEntryMode = "auto";
   t.after(() => { floatingEntryMode = "auto"; });
   const ctx = startClient(t, {});
-  await wait(700);
+  await wait(2800);
   const fab = created.find((el) => el.className === "dsh-retro-fab");
-  assert.ok(fab, "无 slots 时应创建浮动按钮");
+  assert.ok(fab, "槽位重试 2.5 秒仍未就绪时应创建浮动按钮");
   fab.listeners.click[0]({ stopPropagation() {} });
   await wait(10);
   const pop = created.find((el) => el.className === "dsh-retro-fab-pop");
@@ -378,7 +383,7 @@ test("有 layout 服务时浮动入口直接切换到复盘面板", async (t) =>
   t.after(() => { floatingEntryMode = "auto"; });
   const calls = [];
   const ctx = startClient(t, { layout: { selectPanel: (id) => calls.push(id) } });
-  await wait(700);
+  await wait(2800);
   const fab = created.find((el) => el.className === "dsh-retro-fab");
   assert.ok(fab, "应创建浮动按钮");
   fab.listeners.click[0]({ stopPropagation() {} });
@@ -387,12 +392,39 @@ test("有 layout 服务时浮动入口直接切换到复盘面板", async (t) =>
   ctx._dispose();
 });
 
+test("宿主拒绝切换时浮层给出说明并上报诊断", async (t) => {
+  created.length = 0;
+  reported = [];
+  floatingEntryMode = "auto";
+  t.after(() => { floatingEntryMode = "auto"; });
+  const ctx = startClient(t, {
+    layout: { selectPanel() { throw new Error("host denied"); }, other: 1 }
+  });
+  await wait(2800);
+  const fab = created.find((el) => el.className === "dsh-retro-fab");
+  fab.listeners.click[0]({ stopPropagation() {} });
+  await wait(10);
+  const pop = created.find((el) => el.className === "dsh-retro-fab-pop");
+  assert.ok(pop, "切换失败时应展开浮层");
+  const tryOpen = pop.children
+    .filter((child) => child.className === "dsh-retro-fab-pop-row")
+    .find((row) => row.children.some((child) => String(child.textContent).includes("尝试打开面板")));
+  assert.ok(tryOpen, "浮层应包含尝试打开面板");
+  tryOpen.listeners.click[0]({ stopPropagation() {} });
+  await wait(10);
+  const hint = created.find((el) => el.className === "dsh-retro-fab-pop-hint-row");
+  assert.ok(hint, "失败后应在浮层内插入说明，而不是静默");
+  assert.ok(hint.textContent.includes("不允许"), `说明文案应明确：${hint.textContent}`);
+  assert.ok(reported.some((entry) => String(entry.phase).includes("open-panel")), "应上报 open-panel 诊断");
+  ctx._dispose();
+});
+
 test("ui.floatingEntry=off 时不创建浮动入口", async (t) => {
   created.length = 0;
   floatingEntryMode = "off";
   t.after(() => { floatingEntryMode = "auto"; });
   const ctx = startClient(t, {});
-  await wait(900);
+  await wait(3000);
   assert.ok(!created.some((el) => el.className === "dsh-retro-fab"), "off 时不应出现浮窗");
   ctx._dispose();
 });
@@ -406,9 +438,9 @@ test("座位延迟声明时先兜底浮动入口，入口就绪后撤下", async
   };
   const ctx = startClient(t, { slots });
   assert.ok(!created.some((el) => el.className === "dsh-retro-fab"), "座位未声明前不应立即创建浮动按钮");
-  await wait(750);
+  await wait(2800);
   const fab = created.find((el) => el.className === "dsh-retro-fab");
-  assert.ok(fab, "等待后仍未注册时应创建浮动按钮");
+  assert.ok(fab, "等待重试后仍未注册时应创建浮动按钮");
   for (const cb of callbacks) cb();
   assert.ok(fab.removed, "入口就绪后应移除浮动按钮");
   ctx._dispose();
