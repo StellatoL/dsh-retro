@@ -13,7 +13,7 @@ Session events → material / suggestions → retrospective drafts → manual re
 
 Requires Node.js 22 or later, pnpm to manage profile plugins, and DSH with a configured model. See the [official repository](https://github.com/deepseek-ai/deepseek-harness) for DSH installation and the [quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart) for the Web UI and initial setup.
 
-The package declares `engines.dsh` (`^0.2.2-rc.1`) plus matching `@deepseek-ai/dsh-*` peer dependencies, so DSH can reject an incompatible host before activation. This version has been checked against DSH `0.2.2-rc.1` and Cordis `4.1.0` for tool contracts, session events, host and client loading, and configuration composition.
+The package declares `engines.dsh` (`^0.2.2-rc.1`) plus matching `@deepseek-ai/dsh-*` peer dependencies, so DSH can reject an incompatible host before activation. Version 0.10.1 has been exercised against DSH `0.2.2-rc.3` (desktop) and `0.2.2-rc.1`, with Cordis `4.1.0`, covering tool contracts, session events, host and client loading, panel slots and configuration composition.
 
 Install into the Web profile:
 
@@ -38,7 +38,8 @@ For another profile that provides the base services, replace `web` in the comman
 
 ### Upgrading from an older version
 
-- Version 0.4.0 targets DSH `0.2.2-rc.1`. Stays on DSH `0.1.x` require 0.3.0; `engines.dsh` and the peer ranges now reject older hosts instead of failing at runtime.
+- Version 0.10.x targets DSH `0.2.2-rc.x`. Hosts on DSH `0.1.x` must use 0.3.0; `engines.dsh` and the peer ranges reject older hosts instead of failing at runtime.
+- Since 0.6.0 the state file is `schemaVersion: 2`; the first load upgrades it in place and keeps the original as `store.v1.bak.json`. Rolling back means restoring that backup and reinstalling 0.5.0.
 - The repository root is now the distribution package. Existing local links to `dsh-retro/` remain supported; use the root for new installations.
 - If your personal `cordis.patch.yml` already inserts a `retro` row, save any custom configuration and remove that duplicate insertion when switching to bundle installation. Restore personal paths with `/retro config`.
 - When loading the plugin manually, use the bare package name `dsh-retro` in the row's `name` field. Client discovery uses the package metadata.
@@ -124,6 +125,8 @@ The Web sidebar shows a “复盘” (Retrospective) row with a pending counter 
 
 Changes arrive through the `GET /retro/events` stream; if no frame arrives within 15 seconds the client falls back to version polling (15 s while visible, 60 s in the background) and only fetches the delta.
 
+If the panel or the floating entry misbehaves, the client reports `apply`, `apply-state`, `panel-render` and `open-panel-blocked` breadcrumbs to `$DSH_HOME/retro/client-diag.log` (via `POST /retro/client-error`, which never touches business data). Those lines name which slot seat registered, whether the `layout` service was reachable, and how many rows the first render received.
+
 Write actions (Keep, Discard) stay hidden by default: run `/retro config security.enableWriteApi true` first, then the detail pane offers buttons that call `POST /retro/action`, which reuses the same service layer and audit trail as the commands. Without the flag the pane only offers “copy command”, preserving the existing workflow.
 
 Click an item to copy its command, or use its file button to open the note through `obsidian://`. Run confirmation commands in the session. The browser's device must have Obsidian installed and access to a vault with the matching name.
@@ -144,6 +147,7 @@ $DSH_HOME/                              (defaults to ~/.dsh)
 │   ├── config.json                    (personal runtime configuration)
 │   ├── store.json                     (state and the latest 2,000 audit records)
 │   ├── retro-report.html              (generated on request)
+│   ├── client-diag.log                (client breadcrumbs when diagnosing a blank panel)
 │   └── apply-error.log                (created if initialization fails)
 ├── skills/retro-writing/SKILL.md       (installed once; adopted rules are appended)
 └── AGENTS.md                          (written when adopting agents proposals)
@@ -176,7 +180,7 @@ npm test
 npm run test:package
 ```
 
-Static checks validate manifests, exports, skill metadata and JavaScript syntax. Tests cover official DSH tool contracts, filesystem boundaries, workflows and client smoke checks. The package check creates and extracts a tarball and verifies loading by package name. Tests use temporary state, vault and blog directories with substitutes for model calls, Git and browser launchers.
+Static checks validate manifests, exports, skill metadata and JavaScript syntax. The suite runs 127 assertions across 19 test files plus two smoke harnesses: a host context smoke test (commands, tools, listeners, routes) and a client smoke test with 12 checks (XSS-safe rendering, clipboard fallback, delayed seat registration, teardown, batch adoption, command palette, English copy, workspace switching, repeated apply, floating-entry fallback). The package check creates and extracts a tarball and verifies loading by package name. Tests use temporary state, vault and blog directories with substitutes for model calls, Git and browser launchers.
 
 - [Architecture (简体中文)](docs/architecture.md)
 - [Changelog (简体中文)](CHANGELOG.md)
@@ -185,3 +189,7 @@ Static checks validate manifests, exports, skill metadata and JavaScript syntax.
 ## License
 
 [MIT](LICENSE)
+
+---
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)

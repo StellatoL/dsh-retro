@@ -126,3 +126,7 @@ HTTP 路由共四条：`GET /retro/api`（快照）、`GET /retro/detail`（详�
 - 文本重复提示采用关键词或相邻双字符重叠，不是模型语义判断。
 - 面板的素材统计读取最近 500 条，提案列表默认读取 `pending`；审计最多持久化 2000 条。
 - HTML 与 API 是当前状态的视图；本轮客户端验证使用模拟浏览器，完整真实 DSH Web 会话未在本轮启动。
+
+---
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)

@@ -6,6 +6,7 @@
 - 修复"点了没反应"：宿主拒绝 `selectPanel` 时不再只闪一条提示，而是在浮层顶部插入明确说明，并把 `layout` 可用方法列表与错误写入 `client-diag.log`（`open-panel-blocked`）。
 - 槽位延迟重试：`slots` 服务晚于插件应用就绪时每 250ms 重试、最多 2.5 秒，减少宿主热重载时误弹出浮窗。
 - `ui.floatingEntry=off` 依然生效；浮层新增"复制队列总览命令 / 复制今日草稿命令"等可用动作。
+- README（中/英）、架构文档与 `dsh-retro/README.md` 校订：版本声明更新为 0.10.1 / DSH `0.2.2-rc.3`、补充 `client-diag.log` 诊断说明、液态玻璃入口行为与测试数量（127 条断言 + 12 项客户端冒烟），并添加「powered by dsh」徽章。
 
 ## 0.10.0 — 2026-11-17
 

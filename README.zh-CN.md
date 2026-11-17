@@ -13,7 +13,7 @@
 
 需要 Node.js 22 或更新版本、用于管理 profile 插件的 pnpm，以及已配置模型的 DSH。DSH 的安装参见[官方仓库说明](https://github.com/deepseek-ai/deepseek-harness)，Web 界面和首次配置参见[官方快速开始](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)。
 
-包中声明了 `engines.dsh`（`^0.2.2-rc.1`）和与之匹配的 `@deepseek-ai/dsh-*` peer 依赖，DSH 会在激活前拒绝不兼容的宿主。当前版本针对 DSH `0.2.2-rc.1` 与 Cordis `4.1.0` 验证了工具契约、会话事件、宿主与客户端加载，以及配置合成。
+包中声明了 `engines.dsh`（`^0.2.2-rc.1`）和与之匹配的 `@deepseek-ai/dsh-*` peer 依赖，DSH 会在激活前拒绝不兼容的宿主。0.10.1 已在 DSH `0.2.2-rc.3`（桌面端）与 `0.2.2-rc.1`、Cordis `4.1.0` 上验证工具契约、会话事件、宿主与客户端加载、面板槽位以及配置合成。
 
 安装到 Web profile：
 
@@ -38,7 +38,8 @@ dsh plugin --profile web add .
 
 ### 从旧版本升级
 
-- 0.4.0 面向 DSH `0.2.2-rc.1`。继续使用 DSH `0.1.x` 时请安装 0.3.0；现在由 `engines.dsh` 与 peer 范围拒绝旧宿主，而不是等到运行时报错。
+- 0.10.x 面向 DSH `0.2.2-rc.x`。仍使用 DSH `0.1.x` 时请安装 0.3.0；现在由 `engines.dsh` 与 peer 范围拒绝旧宿主，而不是等到运行时报错。
+- 自 0.6.0 起状态文件为 `schemaVersion: 2`，首次加载会原地升级并保留 `store.v1.bak.json`；回滚时恢复该备份并装回 0.5.0 即可。
 - 仓库根目录现在是正式分发包。原先指向 `dsh-retro/` 的本地链接仍可使用；新安装统一使用仓库根目录。
 - 若个人 `cordis.patch.yml` 中已有手工插入的 `retro` 行，改用 bundle 安装时移除这条重复插入；有自定义配置时先保存配置。个人路径可通过下文的 `/retro config` 恢复。
 - 手工加载时，插件行的 `name` 必须是裸包名 `dsh-retro`，客户端发现依赖包元数据。
@@ -124,6 +125,8 @@ Web 左侧栏显示“复盘”图标行，右侧带待办角标（待审卡片 
 
 数据变更优先通过 `GET /retro/events` 事件流推送；15 秒收不到首帧即自动降级为版本号轮询（可见时 15 秒、后台 60 秒），并只拉取变化部分。
 
+面板或浮动入口异常时，客户端会把 `apply`、`apply-state`、`panel-render`、`open-panel-blocked` 面包屑写入 `$DSH_HOME/retro/client-diag.log`（走 `POST /retro/client-error`，不触碰业务数据）。这些记录会写明哪个槽位座位注册成功、`layout` 服务是否可达、首帧拿到了多少行，便于定位"空面板"问题。
+
 写操作（确认落库、丢弃）默认**不出现**：需要先在会话中运行 `/retro config security.enableWriteApi true`，此时详情栏才会出现按钮，并通过 `POST /retro/action` 复用与命令完全相同的实现与审计；未开启时界面只提供“复制命令”，保持既有工作流。
 
 点击条目复制相应命令，点击文件按钮通过 `obsidian://` 打开笔记。确认动作仍需在会话中执行。浏览器所在设备需要安装 Obsidian，并能打开同名知识库。
@@ -144,6 +147,7 @@ $DSH_HOME/                              # 未设置时为 ~/.dsh
 │   ├── config.json                    # 个人运行时配置
 │   ├── store.json                     # 状态与最近 2000 条审计
 │   ├── retro-report.html              # 按命令生成
+│   ├── client-diag.log                # 排查空面板时的客户端面包屑
 │   └── apply-error.log                # 初始化失败时生成
 ├── skills/retro-writing/SKILL.md       # 首次安装；后续采纳追加规则
 └── AGENTS.md                          # 采纳 agents 提案时写入
@@ -176,7 +180,7 @@ npm test
 npm run test:package
 ```
 
-静态检查验证包清单、导出、技能元数据和源码语法；测试包含官方 DSH 工具契约、文件边界、流程与客户端冒烟；打包检查会实际生成并解包 tarball，验证按包名加载。测试使用临时状态、知识库和博客目录，替换模型、Git 和浏览器启动。
+静态检查验证包清单、导出、技能元数据和源码语法；测试为 19 个测试文件共 127 条断言，外加两个冒烟：宿主上下文冒烟（命令、工具、监听器、路由）与 12 项客户端冒烟（XSS 安全渲染、剪贴板降级、座位延迟注册、卸载清理、批量采纳、命令面板、英文文案、工作区切换、重复 apply、浮动入口降级）。打包检查会实际生成并解包 tarball，验证按包名加载。测试使用临时状态、知识库和博客目录，替换模型、Git 和浏览器启动。
 
 - [当前架构](docs/architecture.md)
 - [变更记录](CHANGELOG.md)
@@ -185,3 +189,7 @@ npm run test:package
 ## 许可
 
 [MIT](LICENSE)
+
+---
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
